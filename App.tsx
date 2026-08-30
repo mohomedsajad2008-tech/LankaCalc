@@ -8,7 +8,7 @@ import {
   ChevronRight,
   Clock3,
   DollarSign,
-  Fuel,
+  Fuel as FuelIcon,
   History,
   Home as HomeIcon,
   Moon,
@@ -70,7 +70,7 @@ const CALCULATORS: Calc[] = [
     name: "Fuel Cost Calculator",
     description: "Estimate fuel usage and trip cost.",
     category: "Vehicles",
-    icon: Fuel,
+    icon: FuelIcon,
     popular: true,
   },
   {
@@ -271,9 +271,11 @@ function Percentage() {
       <ShareButton
         name="Percentage calculation"
         result={money(result)}
-        text={`🔥 LankaCalc Result\n\n${p}% of ${money(
-          num(amount)
-        )} = ${money(result)}\n\nCalculate smarter. Live better. 🇱🇰`}
+        text={`🔥 LankaCalc Result
+
+${p}% of ${money(num(amount))} = ${money(result)}
+
+Calculate smarter. Live better. 🇱🇰`}
       />
     </CalcPage>
   );
@@ -294,8 +296,19 @@ function Discount() {
       icon={ShoppingBag}
       disclaimer="Final checkout prices can differ when other charges apply."
     >
-      <Input label="Original price" value={price} setValue={setPrice} suffix="LKR" />
-      <Input label="Discount" value={discount} setValue={setDiscount} suffix="%" />
+      <Input
+        label="Original price"
+        value={price}
+        setValue={setPrice}
+        suffix="LKR"
+      />
+
+      <Input
+        label="Discount"
+        value={discount}
+        setValue={setDiscount}
+        suffix="%"
+      />
 
       <div className="lc-results">
         <Result label="You save" value={money(saved)} />
@@ -305,17 +318,20 @@ function Discount() {
       <ShareButton
         name="Discount calculation"
         result={money(final)}
-        text={`🔥 LankaCalc Result\n\nOriginal price: ${money(
-          num(price)
-        )}\nDiscount: ${validDiscount}%\nFinal price: ${money(
-          final
-        )}\nYou save: ${money(saved)}\n\n🇱🇰 LankaCalc`}
+        text={`🔥 LankaCalc Result
+
+Original price: ${money(num(price))}
+Discount: ${validDiscount}%
+Final price: ${money(final)}
+You save: ${money(saved)}
+
+🇱🇰 LankaCalc`}
       />
     </CalcPage>
   );
 }
 
-function Fuel() {
+function FuelCalculator() {
   const [distance, setDistance] = useState("100");
   const [efficiency, setEfficiency] = useState("15");
   const [price, setPrice] = useState("300");
@@ -330,12 +346,29 @@ function Fuel() {
     <CalcPage
       title="Fuel Cost Calculator"
       description="Estimate fuel usage and trip cost."
-      icon={Fuel}
+      icon={FuelIcon}
       disclaimer="Fuel prices and real-world vehicle efficiency can change."
     >
-      <Input label="Distance" value={distance} setValue={setDistance} suffix="km" />
-      <Input label="Vehicle efficiency" value={efficiency} setValue={setEfficiency} suffix="km/L" />
-      <Input label="Fuel price" value={price} setValue={setPrice} suffix="LKR/L" />
+      <Input
+        label="Distance"
+        value={distance}
+        setValue={setDistance}
+        suffix="km"
+      />
+
+      <Input
+        label="Vehicle efficiency"
+        value={efficiency}
+        setValue={setEfficiency}
+        suffix="km/L"
+      />
+
+      <Input
+        label="Fuel price"
+        value={price}
+        setValue={setPrice}
+        suffix="LKR/L"
+      />
 
       <button
         className={`lc-toggle ${roundTrip ? "active" : ""}`}
@@ -353,9 +386,13 @@ function Fuel() {
       <ShareButton
         name="Fuel trip"
         result={money(cost)}
-        text={`🔥 LankaCalc Fuel Result\n\nDistance: ${km} km\nFuel: ${litres.toFixed(
-          2
-        )} L\nEstimated cost: ${money(cost)}\n\n🇱🇰 LankaCalc`}
+        text={`🔥 LankaCalc Fuel Result
+
+Distance: ${km} km
+Fuel: ${litres.toFixed(2)} L
+Estimated cost: ${money(cost)}
+
+🇱🇰 LankaCalc`}
       />
     </CalcPage>
   );
@@ -389,9 +426,26 @@ function Loan() {
       icon={PiggyBank}
       disclaimer="Actual lender repayment may differ due to fees, insurance and lender-specific terms."
     >
-      <Input label="Loan amount" value={amount} setValue={setAmount} suffix="LKR" />
-      <Input label="Annual interest rate" value={rate} setValue={setRate} suffix="%" />
-      <Input label="Loan period" value={years} setValue={setYears} suffix="years" />
+      <Input
+        label="Loan amount"
+        value={amount}
+        setValue={setAmount}
+        suffix="LKR"
+      />
+
+      <Input
+        label="Annual interest rate"
+        value={rate}
+        setValue={setRate}
+        suffix="%"
+      />
+
+      <Input
+        label="Loan period"
+        value={years}
+        setValue={setYears}
+        suffix="years"
+      />
 
       <Result label="Monthly payment" value={money(payment)} main />
 
@@ -407,11 +461,13 @@ function Loan() {
       <ShareButton
         name="Loan calculation"
         result={money(payment)}
-        text={`🔥 LankaCalc Loan Result\n\nLoan amount: ${money(
-          principal
-        )}\nMonthly payment: ${money(
-          payment
-        )}\nTotal interest: ${money(interest)}\n\n🇱🇰 LankaCalc`}
+        text={`🔥 LankaCalc Loan Result
+
+Loan amount: ${money(principal)}
+Monthly payment: ${money(payment)}
+Total interest: ${money(interest)}
+
+🇱🇰 LankaCalc`}
       />
     </CalcPage>
   );
@@ -423,7 +479,11 @@ function Salary() {
   const [overtime, setOvertime] = useState("5000");
   const [deduction, setDeduction] = useState("0");
 
-  const gross = Math.max(0, num(basic)) + Math.max(0, num(allowance)) + Math.max(0, num(overtime));
+  const gross =
+    Math.max(0, num(basic)) +
+    Math.max(0, num(allowance)) +
+    Math.max(0, num(overtime));
+
   const deductions = Math.max(0, num(deduction));
   const takeHome = Math.max(0, gross - deductions);
 
@@ -434,15 +494,42 @@ function Salary() {
       icon={Wallet}
       disclaimer="Deduction and tax assumptions can change. Verify current official rates."
     >
-      <Input label="Basic salary" value={basic} setValue={setBasic} suffix="LKR" />
-      <Input label="Allowances" value={allowance} setValue={setAllowance} suffix="LKR" />
-      <Input label="Overtime" value={overtime} setValue={setOvertime} suffix="LKR" />
-      <Input label="Other deductions" value={deduction} setValue={setDeduction} suffix="LKR" />
+      <Input
+        label="Basic salary"
+        value={basic}
+        setValue={setBasic}
+        suffix="LKR"
+      />
+
+      <Input
+        label="Allowances"
+        value={allowance}
+        setValue={setAllowance}
+        suffix="LKR"
+      />
+
+      <Input
+        label="Overtime"
+        value={overtime}
+        setValue={setOvertime}
+        suffix="LKR"
+      />
+
+      <Input
+        label="Other deductions"
+        value={deduction}
+        setValue={setDeduction}
+        suffix="LKR"
+      />
 
       <div className="lc-results">
         <Result label="Gross salary" value={money(gross)} />
         <Result label="Deductions" value={money(deductions)} />
-        <Result label="Estimated take-home" value={money(takeHome)} main />
+        <Result
+          label="Estimated take-home"
+          value={money(takeHome)}
+          main
+        />
       </div>
 
       <div className="lc-assumption">
@@ -453,11 +540,13 @@ function Salary() {
       <ShareButton
         name="Salary calculation"
         result={money(takeHome)}
-        text={`🔥 LankaCalc Salary Result\n\nGross: ${money(
-          gross
-        )}\nDeductions: ${money(
-          deductions
-        )}\nEstimated take-home: ${money(takeHome)}\n\n🇱🇰 LankaCalc`}
+        text={`🔥 LankaCalc Salary Result
+
+Gross: ${money(gross)}
+Deductions: ${money(deductions)}
+Estimated take-home: ${money(takeHome)}
+
+🇱🇰 LankaCalc`}
       />
     </CalcPage>
   );
@@ -469,8 +558,12 @@ function Profit() {
   const [quantity, setQuantity] = useState("100");
   const [expenses, setExpenses] = useState("0");
 
-  const revenue = Math.max(0, num(selling)) * Math.max(0, num(quantity));
-  const productCost = Math.max(0, num(cost)) * Math.max(0, num(quantity));
+  const revenue =
+    Math.max(0, num(selling)) * Math.max(0, num(quantity));
+
+  const productCost =
+    Math.max(0, num(cost)) * Math.max(0, num(quantity));
+
   const otherExpenses = Math.max(0, num(expenses));
   const totalCost = productCost + otherExpenses;
   const profit = revenue - totalCost;
@@ -484,10 +577,32 @@ function Profit() {
       icon={DollarSign}
       disclaimer="Use actual accounting costs for important business decisions."
     >
-      <Input label="Selling price / unit" value={selling} setValue={setSelling} suffix="LKR" />
-      <Input label="Cost price / unit" value={cost} setValue={setCost} suffix="LKR" />
-      <Input label="Quantity" value={quantity} setValue={setQuantity} />
-      <Input label="Other expenses" value={expenses} setValue={setExpenses} suffix="LKR" />
+      <Input
+        label="Selling price / unit"
+        value={selling}
+        setValue={setSelling}
+        suffix="LKR"
+      />
+
+      <Input
+        label="Cost price / unit"
+        value={cost}
+        setValue={setCost}
+        suffix="LKR"
+      />
+
+      <Input
+        label="Quantity"
+        value={quantity}
+        setValue={setQuantity}
+      />
+
+      <Input
+        label="Other expenses"
+        value={expenses}
+        setValue={setExpenses}
+        suffix="LKR"
+      />
 
       <div className="lc-results">
         <Result label="Revenue" value={money(revenue)} />
@@ -500,11 +615,14 @@ function Profit() {
       <ShareButton
         name="Business profit"
         result={money(profit)}
-        text={`🔥 LankaCalc Profit Result\n\nRevenue: ${money(
-          revenue
-        )}\nCost: ${money(totalCost)}\nProfit: ${money(
-          profit
-        )}\nMargin: ${margin.toFixed(2)}%\n\n🇱🇰 LankaCalc`}
+        text={`🔥 LankaCalc Profit Result
+
+Revenue: ${money(revenue)}
+Cost: ${money(totalCost)}
+Profit: ${money(profit)}
+Margin: ${margin.toFixed(2)}%
+
+🇱🇰 LankaCalc`}
       />
     </CalcPage>
   );
@@ -533,28 +651,65 @@ function Electricity() {
       icon={Zap}
       disclaimer="This is an estimate. Actual electricity bills depend on the applicable tariff structure and billing rules."
     >
-      <Input label="Appliance wattage" value={watts} setValue={setWatts} suffix="W" />
-      <Input label="Quantity" value={quantity} setValue={setQuantity} />
-      <Input label="Hours per day" value={hours} setValue={setHours} suffix="hours" />
-      <Input label="Days per month" value={days} setValue={setDays} suffix="days" />
-      <Input label="Estimated rate" value={rate} setValue={setRate} suffix="LKR/kWh" />
+      <Input
+        label="Appliance wattage"
+        value={watts}
+        setValue={setWatts}
+        suffix="W"
+      />
+
+      <Input
+        label="Quantity"
+        value={quantity}
+        setValue={setQuantity}
+      />
+
+      <Input
+        label="Hours per day"
+        value={hours}
+        setValue={setHours}
+        suffix="hours"
+      />
+
+      <Input
+        label="Days per month"
+        value={days}
+        setValue={setDays}
+        suffix="days"
+      />
+
+      <Input
+        label="Estimated rate"
+        value={rate}
+        setValue={setRate}
+        suffix="LKR/kWh"
+      />
 
       <div className="lc-results">
         <Result label="Estimated usage" value={`${kwh.toFixed(2)} kWh`} />
-        <Result label="Estimated monthly cost" value={money(cost)} main />
+        <Result
+          label="Estimated monthly cost"
+          value={money(cost)}
+          main
+        />
       </div>
 
       <div className="lc-assumption">
         <b>Tariff assumption</b>
-        <span>Simple configurable rate used for estimation: Rs. {rate}/kWh.</span>
+        <span>
+          Simple configurable rate used for estimation: Rs. {rate}/kWh.
+        </span>
       </div>
 
       <ShareButton
         name="Electricity estimate"
         result={money(cost)}
-        text={`🔥 LankaCalc Electricity Estimate\n\nUsage: ${kwh.toFixed(
-          2
-        )} kWh\nEstimated cost: ${money(cost)}\n\n🇱🇰 LankaCalc`}
+        text={`🔥 LankaCalc Electricity Estimate
+
+Usage: ${kwh.toFixed(2)} kWh
+Estimated cost: ${money(cost)}
+
+🇱🇰 LankaCalc`}
       />
     </CalcPage>
   );
@@ -589,11 +744,19 @@ function Currency() {
       icon={DollarSign}
       disclaimer="Indicative rates only. Exchange rates change continuously and may differ from bank or exchange-house rates."
     >
-      <Input label="Amount" value={amount} setValue={setAmount} />
+      <Input
+        label="Amount"
+        value={amount}
+        setValue={setAmount}
+      />
 
       <label className="lc-input">
         <span>From</span>
-        <select value={from} onChange={(e) => setFrom(e.target.value)}>
+
+        <select
+          value={from}
+          onChange={(e) => setFrom(e.target.value)}
+        >
           {Object.keys(rates).map((c) => (
             <option key={c}>{c}</option>
           ))}
@@ -612,25 +775,37 @@ function Currency() {
 
       <label className="lc-input">
         <span>To</span>
-        <select value={to} onChange={(e) => setTo(e.target.value)}>
+
+        <select
+          value={to}
+          onChange={(e) => setTo(e.target.value)}
+        >
           {Object.keys(rates).map((c) => (
             <option key={c}>{c}</option>
           ))}
         </select>
       </label>
 
-      <Result label="Converted amount" value={`${result.toFixed(2)} ${to}`} main />
+      <Result
+        label="Converted amount"
+        value={`${result.toFixed(2)} ${to}`}
+        main
+      />
 
       <div className="lc-rate">
-        Indicative rate: 1 {from} ≈ {(rates[from] / rates[to]).toFixed(4)} {to}
+        Indicative rate: 1 {from} ≈{" "}
+        {(rates[from] / rates[to]).toFixed(4)} {to}
       </div>
 
       <ShareButton
         name="Currency conversion"
         result={`${result.toFixed(2)} ${to}`}
-        text={`🔥 LankaCalc Currency Result\n\n${amount} ${from} ≈ ${result.toFixed(
-          2
-        )} ${to}\n\nIndicative rate\n🇱🇰 LankaCalc`}
+        text={`🔥 LankaCalc Currency Result
+
+${amount} ${from} ≈ ${result.toFixed(2)} ${to}
+
+Indicative rate
+🇱🇰 LankaCalc`}
       />
     </CalcPage>
   );
@@ -667,11 +842,19 @@ function Unit() {
       icon={Calculator}
       disclaimer="Conversion uses standard mathematical conversion factors."
     >
-      <Input label="Value" value={value} setValue={setValue} />
+      <Input
+        label="Value"
+        value={value}
+        setValue={setValue}
+      />
 
       <label className="lc-input">
         <span>From</span>
-        <select value={from} onChange={(e) => setFrom(e.target.value)}>
+
+        <select
+          value={from}
+          onChange={(e) => setFrom(e.target.value)}
+        >
           {Object.keys(factors).map((u) => (
             <option key={u}>{u}</option>
           ))}
@@ -680,14 +863,22 @@ function Unit() {
 
       <label className="lc-input">
         <span>To</span>
-        <select value={to} onChange={(e) => setTo(e.target.value)}>
+
+        <select
+          value={to}
+          onChange={(e) => setTo(e.target.value)}
+        >
           {Object.keys(factors).map((u) => (
             <option key={u}>{u}</option>
           ))}
         </select>
       </label>
 
-      <Result label="Converted value" value={`${result.toFixed(4)} ${to}`} main />
+      <Result
+        label="Converted value"
+        value={`${result.toFixed(4)} ${to}`}
+        main
+      />
     </CalcPage>
   );
 }
@@ -700,9 +891,19 @@ function Vehicle() {
   const [other, setOther] = useState("100000");
 
   const purchase = Math.max(0, num(price));
-  const base = purchase + Math.max(0, num(shipping)) + Math.max(0, num(insurance));
-  const tax = base * Math.max(0, num(taxRate)) / 100;
-  const total = base + tax + Math.max(0, num(other));
+
+  const base =
+    purchase +
+    Math.max(0, num(shipping)) +
+    Math.max(0, num(insurance));
+
+  const tax =
+    (base * Math.max(0, num(taxRate))) / 100;
+
+  const total =
+    base +
+    tax +
+    Math.max(0, num(other));
 
   return (
     <CalcPage
@@ -711,27 +912,76 @@ function Vehicle() {
       icon={Car}
       disclaimer="ESTIMATE ONLY. Import duties, taxes, levies, exchange rates and applicable charges can change. This is not an official government calculation."
     >
-      <div className="lc-estimate-badge">ESTIMATE ONLY</div>
+      <div className="lc-estimate-badge">
+        ESTIMATE ONLY
+      </div>
 
-      <Input label="Vehicle purchase price" value={price} setValue={setPrice} suffix="LKR" />
-      <Input label="Shipping cost" value={shipping} setValue={setShipping} suffix="LKR" />
-      <Input label="Insurance" value={insurance} setValue={setInsurance} suffix="LKR" />
-      <Input label="Estimated tax / duty rate" value={taxRate} setValue={setTaxRate} suffix="%" />
-      <Input label="Other charges" value={other} setValue={setOther} suffix="LKR" />
+      <Input
+        label="Vehicle purchase price"
+        value={price}
+        setValue={setPrice}
+        suffix="LKR"
+      />
+
+      <Input
+        label="Shipping cost"
+        value={shipping}
+        setValue={setShipping}
+        suffix="LKR"
+      />
+
+      <Input
+        label="Insurance"
+        value={insurance}
+        setValue={setInsurance}
+        suffix="LKR"
+      />
+
+      <Input
+        label="Estimated tax / duty rate"
+        value={taxRate}
+        setValue={setTaxRate}
+        suffix="%"
+      />
+
+      <Input
+        label="Other charges"
+        value={other}
+        setValue={setOther}
+        suffix="LKR"
+      />
 
       <div className="lc-results">
-        <Result label="Vehicle + shipping + insurance" value={money(base)} />
-        <Result label="Estimated taxes / duties" value={money(tax)} />
-        <Result label="Other charges" value={money(num(other))} />
-        <Result label="Estimated landed cost" value={money(total)} main />
+        <Result
+          label="Vehicle + shipping + insurance"
+          value={money(base)}
+        />
+
+        <Result
+          label="Estimated taxes / duties"
+          value={money(tax)}
+        />
+
+        <Result
+          label="Other charges"
+          value={money(num(other))}
+        />
+
+        <Result
+          label="Estimated landed cost"
+          value={money(total)}
+          main
+        />
       </div>
 
       <ShareButton
         name="Vehicle import estimate"
         result={money(total)}
-        text={`🔥 LankaCalc Vehicle Import Estimate\n\nEstimated landed cost: ${money(
-          total
-        )}\n\nESTIMATE ONLY 🇱🇰`}
+        text={`🔥 LankaCalc Vehicle Import Estimate
+
+Estimated landed cost: ${money(total)}
+
+ESTIMATE ONLY 🇱🇰`}
       />
     </CalcPage>
   );
@@ -753,7 +1003,10 @@ function CalcPage({
   return (
     <main className="lc-page">
       <div className="lc-page-inner">
-        <button className="lc-back" onClick={() => (location.hash = "")}>
+        <button
+          className="lc-back"
+          onClick={() => (location.hash = "")}
+        >
           <ArrowLeft size={16} />
           Calculators
         </button>
@@ -764,25 +1017,36 @@ function CalcPage({
           </div>
 
           <div>
-            <span className="lc-kicker">LANKACALC</span>
+            <span className="lc-kicker">
+              LANKACALC
+            </span>
+
             <h1>{title}</h1>
             <p>{description}</p>
           </div>
         </div>
 
         <section className="lc-calculator">
-          <div className="lc-form">{children}</div>
+          <div className="lc-form">
+            {children}
+          </div>
 
           <details className="lc-how">
-            <summary>How this calculation works</summary>
+            <summary>
+              How this calculation works
+            </summary>
+
             <p>
-              LankaCalc processes your inputs in your browser and displays
-              the result instantly. Basic calculations do not require a
+              LankaCalc processes your inputs in your
+              browser and displays the result instantly.
+              Basic calculations do not require a
               database.
             </p>
           </details>
 
-          <div className="lc-disclaimer">⚠️ {disclaimer}</div>
+          <div className="lc-disclaimer">
+            ⚠️ {disclaimer}
+          </div>
         </section>
 
         <div className="lc-ad">
@@ -820,7 +1084,9 @@ function Home({
     <main>
       <section className="lc-hero">
         <div className="lc-hero-inner">
-          <div className="lc-badge">🇱🇰 Made for Sri Lanka</div>
+          <div className="lc-badge">
+            🇱🇰 Made for Sri Lanka
+          </div>
 
           <h1>
             Sri Lanka's
@@ -829,20 +1095,25 @@ function Home({
           </h1>
 
           <p>
-            Calculate loans, salaries, fuel costs, profits,
-            discounts and more — instantly.
+            Calculate loans, salaries, fuel costs,
+            profits, discounts and more — instantly.
           </p>
 
           <div className="lc-search">
             <Search size={20} />
+
             <input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
               placeholder="Search a calculator..."
             />
 
             {search && (
-              <button onClick={() => setSearch("")}>
+              <button
+                onClick={() => setSearch("")}
+              >
                 <X size={18} />
               </button>
             )}
@@ -857,7 +1128,9 @@ function Home({
             ].map(([name, id]) => (
               <button
                 key={id}
-                onClick={() => openCalc(id as CalcId)}
+                onClick={() =>
+                  openCalc(id as CalcId)
+                }
               >
                 {name}
               </button>
@@ -869,12 +1142,22 @@ function Home({
       <section className="lc-section">
         <div className="lc-section-title">
           <div>
-            <span className="lc-kicker">POPULAR</span>
-            <h2>What do you need to calculate?</h2>
+            <span className="lc-kicker">
+              POPULAR
+            </span>
+
+            <h2>
+              What do you need to calculate?
+            </h2>
           </div>
 
-          <button onClick={() => setPage("calculators")}>
-            View all <ArrowRight size={15} />
+          <button
+            onClick={() =>
+              setPage("calculators")
+            }
+          >
+            View all
+            <ArrowRight size={15} />
           </button>
         </div>
 
@@ -886,7 +1169,9 @@ function Home({
               <button
                 className="lc-card"
                 key={calc.id}
-                onClick={() => openCalc(calc.id)}
+                onClick={() =>
+                  openCalc(calc.id)
+                }
               >
                 <div className="lc-card-icon">
                   <Icon size={21} />
@@ -898,7 +1183,10 @@ function Home({
                   <small>{calc.category}</small>
                 </div>
 
-                <ChevronRight className="lc-chevron" size={18} />
+                <ChevronRight
+                  className="lc-chevron"
+                  size={18}
+                />
               </button>
             );
           })}
@@ -908,8 +1196,13 @@ function Home({
       <section className="lc-section">
         <div className="lc-section-title">
           <div>
-            <span className="lc-kicker">EXPLORE</span>
-            <h2>Calculator categories</h2>
+            <span className="lc-kicker">
+              EXPLORE
+            </span>
+
+            <h2>
+              Calculator categories
+            </h2>
           </div>
         </div>
 
@@ -921,7 +1214,9 @@ function Home({
               <button
                 className="lc-category"
                 key={category.name}
-                onClick={() => setPage("calculators")}
+                onClick={() =>
+                  setPage("calculators")
+                }
               >
                 <Icon size={19} />
                 <span>{category.name}</span>
@@ -935,17 +1230,25 @@ function Home({
       <section className="lc-trust">
         <div>
           <b>Fast & private</b>
-          <span>Your calculations happen locally in your browser.</span>
+          <span>
+            Your calculations happen locally in
+            your browser.
+          </span>
         </div>
 
         <div>
           <b>Made for Sri Lanka</b>
-          <span>LKR-first tools for everyday decisions.</span>
+          <span>
+            LKR-first tools for everyday decisions.
+          </span>
         </div>
 
         <div>
           <b>Transparent</b>
-          <span>Assumptions and estimates are clearly labelled.</span>
+          <span>
+            Assumptions and estimates are clearly
+            labelled.
+          </span>
         </div>
       </section>
 
@@ -973,17 +1276,27 @@ function Calculators({
     <main className="lc-page">
       <div className="lc-page-inner">
         <div className="lc-list-head">
-          <span className="lc-kicker">LANKACALC</span>
+          <span className="lc-kicker">
+            LANKACALC
+          </span>
+
           <h1>All calculators</h1>
-          <p>Fast, simple tools built for everyday Sri Lankan needs.</p>
+
+          <p>
+            Fast, simple tools built for everyday
+            Sri Lankan needs.
+          </p>
         </div>
 
         <div className="lc-search lc-inner-search">
           <Search size={19} />
+
           <input
             placeholder="Search calculators..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) =>
+              setQuery(e.target.value)
+            }
           />
         </div>
 
@@ -995,7 +1308,9 @@ function Calculators({
               <button
                 className="lc-card"
                 key={calc.id}
-                onClick={() => openCalc(calc.id)}
+                onClick={() =>
+                  openCalc(calc.id)
+                }
               >
                 <div className="lc-card-icon">
                   <Icon size={21} />
@@ -1007,7 +1322,10 @@ function Calculators({
                   <small>{calc.category}</small>
                 </div>
 
-                <ChevronRight className="lc-chevron" size={18} />
+                <ChevronRight
+                  className="lc-chevron"
+                  size={18}
+                />
               </button>
             );
           })}
@@ -1023,7 +1341,11 @@ function HistoryPage() {
   useEffect(() => {
     try {
       setItems(
-        JSON.parse(localStorage.getItem("lankacalc-history") || "[]")
+        JSON.parse(
+          localStorage.getItem(
+            "lankacalc-history"
+          ) || "[]"
+        )
       );
     } catch {
       setItems([]);
@@ -1031,7 +1353,10 @@ function HistoryPage() {
   }, []);
 
   function clear() {
-    localStorage.removeItem("lankacalc-history");
+    localStorage.removeItem(
+      "lankacalc-history"
+    );
+
     setItems([]);
   }
 
@@ -1039,13 +1364,22 @@ function HistoryPage() {
     <main className="lc-page">
       <div className="lc-page-inner">
         <div className="lc-list-head">
-          <span className="lc-kicker">LOCAL STORAGE</span>
+          <span className="lc-kicker">
+            LOCAL STORAGE
+          </span>
+
           <h1>History</h1>
-          <p>Saved locally on this device.</p>
+
+          <p>
+            Saved locally on this device.
+          </p>
         </div>
 
         {items.length > 0 && (
-          <button className="lc-clear" onClick={clear}>
+          <button
+            className="lc-clear"
+            onClick={clear}
+          >
             <Trash2 size={16} />
             Clear history
           </button>
@@ -1054,21 +1388,36 @@ function HistoryPage() {
         {items.length === 0 ? (
           <div className="lc-empty">
             <History size={30} />
-            <h3>No calculations yet</h3>
-            <p>Use Share Result on a calculator to save a result here.</p>
+
+            <h3>
+              No calculations yet
+            </h3>
+
+            <p>
+              Use Share Result on a calculator
+              to save a result here.
+            </p>
           </div>
         ) : (
           <div className="lc-history">
             {items.map((item) => (
-              <div className="lc-history-item" key={item.id}>
+              <div
+                className="lc-history-item"
+                key={item.id}
+              >
                 <div>
                   <b>{item.name}</b>
+
                   <small>
-                    {new Date(item.date).toLocaleString()}
+                    {new Date(
+                      item.date
+                    ).toLocaleString()}
                   </small>
                 </div>
 
-                <strong>{item.result}</strong>
+                <strong>
+                  {item.result}
+                </strong>
               </div>
             ))}
           </div>
@@ -1089,30 +1438,51 @@ function SettingsPage({
     <main className="lc-page">
       <div className="lc-page-inner">
         <div className="lc-list-head">
-          <span className="lc-kicker">PREFERENCES</span>
+          <span className="lc-kicker">
+            PREFERENCES
+          </span>
+
           <h1>Settings</h1>
-          <p>Customize your LankaCalc experience.</p>
+
+          <p>
+            Customize your LankaCalc experience.
+          </p>
         </div>
 
         <section className="lc-settings">
           <div className="lc-setting">
             <div>
               <b>Appearance</b>
-              <small>Choose your preferred theme.</small>
+
+              <small>
+                Choose your preferred theme.
+              </small>
             </div>
 
             <div className="lc-theme-buttons">
               <button
-                className={theme === "light" ? "active" : ""}
-                onClick={() => setTheme("light")}
+                className={
+                  theme === "light"
+                    ? "active"
+                    : ""
+                }
+                onClick={() =>
+                  setTheme("light")
+                }
               >
                 <Sun size={16} />
                 Light
               </button>
 
               <button
-                className={theme === "dark" ? "active" : ""}
-                onClick={() => setTheme("dark")}
+                className={
+                  theme === "dark"
+                    ? "active"
+                    : ""
+                }
+                onClick={() =>
+                  setTheme("dark")
+                }
               >
                 <Moon size={16} />
                 Dark
@@ -1123,33 +1493,57 @@ function SettingsPage({
           <div className="lc-setting">
             <div>
               <b>Currency</b>
-              <small>Default currency for LankaCalc.</small>
+
+              <small>
+                Default currency for LankaCalc.
+              </small>
             </div>
-            <strong>LKR / Rs.</strong>
+
+            <strong>
+              LKR / Rs.
+            </strong>
           </div>
 
           <div className="lc-setting">
             <div>
               <b>Country</b>
-              <small>Default country.</small>
+
+              <small>
+                Default country.
+              </small>
             </div>
-            <strong>🇱🇰 Sri Lanka</strong>
+
+            <strong>
+              🇱🇰 Sri Lanka
+            </strong>
           </div>
 
           <div className="lc-setting">
             <div>
               <b>Privacy</b>
-              <small>Your calculations are processed locally.</small>
+
+              <small>
+                Your calculations are
+                processed locally.
+              </small>
             </div>
+
             <Check size={19} />
           </div>
 
           <div className="lc-setting">
             <div>
               <b>Premium</b>
-              <small>Future no-ads and advanced features.</small>
+
+              <small>
+                Future no-ads and advanced
+                features.
+              </small>
             </div>
-            <span className="lc-coming">Coming later</span>
+
+            <span className="lc-coming">
+              Coming later
+            </span>
           </div>
         </section>
       </div>
@@ -1159,32 +1553,57 @@ function SettingsPage({
 
 function App() {
   const [page, setPage] = useState(
-    location.hash.replace("#", "") || "home"
+    location.hash.replace("#", "") ||
+      "home"
   );
 
-  const [theme, setTheme] = useState<Theme>(
-    (localStorage.getItem("lankacalc-theme") as Theme) || "light"
-  );
+  const [theme, setTheme] =
+    useState<Theme>(
+      (localStorage.getItem(
+        "lankacalc-theme"
+      ) as Theme) || "light"
+    );
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem("lankacalc-theme", theme);
+    document.documentElement.dataset.theme =
+      theme;
+
+    localStorage.setItem(
+      "lankacalc-theme",
+      theme
+    );
   }, [theme]);
 
   useEffect(() => {
     const listener = () =>
-      setPage(location.hash.replace("#", "") || "home");
+      setPage(
+        location.hash.replace(
+          "#",
+          ""
+        ) || "home"
+      );
 
-    window.addEventListener("hashchange", listener);
+    window.addEventListener(
+      "hashchange",
+      listener
+    );
 
     return () =>
-      window.removeEventListener("hashchange", listener);
+      window.removeEventListener(
+        "hashchange",
+        listener
+      );
   }, []);
 
   function navigate(value: string) {
     location.hash = value;
+
     setPage(value);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   }
 
   function openCalc(id: CalcId) {
@@ -1195,7 +1614,11 @@ function App() {
 
   switch (page) {
     case "calculators":
-      content = <Calculators openCalc={openCalc} />;
+      content = (
+        <Calculators
+          openCalc={openCalc}
+        />
+      );
       break;
 
     case "history":
@@ -1204,7 +1627,10 @@ function App() {
 
     case "settings":
       content = (
-        <SettingsPage theme={theme} setTheme={setTheme} />
+        <SettingsPage
+          theme={theme}
+          setTheme={setTheme}
+        />
       );
       break;
 
@@ -1217,7 +1643,7 @@ function App() {
       break;
 
     case "fuel":
-      content = <Fuel />;
+      content = <FuelCalculator />;
       break;
 
     case "loan":
@@ -1262,7 +1688,9 @@ function App() {
       <header className="lc-header">
         <button
           className="lc-brand"
-          onClick={() => navigate("home")}
+          onClick={() =>
+            navigate("home")
+          }
         >
           <span className="lc-logo">
             <Calculator size={20} />
@@ -1270,24 +1698,44 @@ function App() {
 
           <span>
             LankaCalc
-            <small>Calculate smarter. Live better. 🇱🇰</small>
+
+            <small>
+              Calculate smarter. Live
+              better. 🇱🇰
+            </small>
           </span>
         </button>
 
         <nav className="lc-desktop-nav">
-          <button onClick={() => navigate("home")}>
+          <button
+            onClick={() =>
+              navigate("home")
+            }
+          >
             Home
           </button>
 
-          <button onClick={() => navigate("calculators")}>
+          <button
+            onClick={() =>
+              navigate("calculators")
+            }
+          >
             Calculators
           </button>
 
-          <button onClick={() => navigate("history")}>
+          <button
+            onClick={() =>
+              navigate("history")
+            }
+          >
             History
           </button>
 
-          <button onClick={() => navigate("settings")}>
+          <button
+            onClick={() =>
+              navigate("settings")
+            }
+          >
             Settings
           </button>
         </nav>
@@ -1295,7 +1743,11 @@ function App() {
         <button
           className="lc-header-theme"
           onClick={() =>
-            setTheme(theme === "light" ? "dark" : "light")
+            setTheme(
+              theme === "light"
+                ? "dark"
+                : "light"
+            )
           }
           aria-label="Toggle theme"
         >
@@ -1312,43 +1764,72 @@ function App() {
       <footer className="lc-footer">
         <div>
           <b>LankaCalc 🇱🇰</b>
-          <p>Simple calculators made for Sri Lanka.</p>
+
+          <p>
+            Simple calculators made for
+            Sri Lanka.
+          </p>
         </div>
 
         <span>
-          Estimates & general calculations. Verify official
-          rates where applicable.
+          Estimates & general calculations.
+          Verify official rates where
+          applicable.
         </span>
       </footer>
 
       <nav className="lc-bottom-nav">
         <button
-          className={page === "home" ? "active" : ""}
-          onClick={() => navigate("home")}
+          className={
+            page === "home"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            navigate("home")
+          }
         >
           <HomeIcon size={18} />
           Home
         </button>
 
         <button
-          className={page === "calculators" ? "active" : ""}
-          onClick={() => navigate("calculators")}
+          className={
+            page === "calculators"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            navigate("calculators")
+          }
         >
           <Calculator size={18} />
           Calculators
         </button>
 
         <button
-          className={page === "history" ? "active" : ""}
-          onClick={() => navigate("history")}
+          className={
+            page === "history"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            navigate("history")
+          }
         >
           <Clock3 size={18} />
           History
         </button>
 
         <button
-          className={page === "settings" ? "active" : ""}
-          onClick={() => navigate("settings")}
+          className={
+            page === "settings"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            navigate("settings")
+          }
         >
           <Settings size={18} />
           Settings
