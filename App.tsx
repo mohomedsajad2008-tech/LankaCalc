@@ -7,11 +7,10 @@ import {
   Check,
   ChevronRight,
   Clock3,
-  Copy,
   DollarSign,
   Fuel,
   History,
-  Home,
+  Home as HomeIcon,
   Moon,
   Percent,
   PiggyBank,
@@ -32,7 +31,11 @@ type CalcId =
   | "fuel"
   | "loan"
   | "salary"
-  | "profit";
+  | "profit"
+  | "electricity"
+  | "currency"
+  | "unit"
+  | "vehicle";
 
 type Theme = "light" | "dark";
 
@@ -73,7 +76,7 @@ const CALCULATORS: Calc[] = [
   {
     id: "profit",
     name: "Profit Calculator",
-    description: "Calculate revenue, profit and margin.",
+    description: "Calculate revenue, costs, profit and margin.",
     category: "Business",
     icon: DollarSign,
     popular: true,
@@ -81,7 +84,7 @@ const CALCULATORS: Calc[] = [
   {
     id: "discount",
     name: "Discount Calculator",
-    description: "Find your discount, savings and final price.",
+    description: "Find savings and final price.",
     category: "Shopping",
     icon: ShoppingBag,
     popular: true,
@@ -94,6 +97,34 @@ const CALCULATORS: Calc[] = [
     icon: Percent,
     popular: true,
   },
+  {
+    id: "electricity",
+    name: "Electricity Estimator",
+    description: "Estimate appliance usage and monthly cost.",
+    category: "Household",
+    icon: Zap,
+  },
+  {
+    id: "currency",
+    name: "Currency Converter",
+    description: "Convert LKR and major currencies.",
+    category: "General",
+    icon: DollarSign,
+  },
+  {
+    id: "unit",
+    name: "Unit Converter",
+    description: "Convert common everyday units instantly.",
+    category: "General",
+    icon: Calculator,
+  },
+  {
+    id: "vehicle",
+    name: "Vehicle Import Estimator",
+    description: "Estimate imported vehicle landed cost.",
+    category: "Vehicles",
+    icon: Car,
+  },
 ];
 
 const CATEGORIES = [
@@ -101,8 +132,9 @@ const CATEGORIES = [
   { name: "Vehicles", icon: Car },
   { name: "Salary & Work", icon: Wallet },
   { name: "Business", icon: DollarSign },
-  { name: "Household", icon: Home },
+  { name: "Household", icon: Zap },
   { name: "Shopping", icon: ShoppingBag },
+  { name: "General", icon: Calculator },
 ];
 
 const money = (n: number) =>
@@ -114,21 +146,23 @@ function num(value: string) {
 }
 
 function saveHistory(name: string, result: string) {
-  const existing = JSON.parse(
-    localStorage.getItem("lankacalc-history") || "[]"
-  );
+  try {
+    const existing = JSON.parse(
+      localStorage.getItem("lankacalc-history") || "[]"
+    );
 
-  const item = {
-    id: Date.now(),
-    name,
-    result,
-    date: new Date().toISOString(),
-  };
+    const item = {
+      id: Date.now(),
+      name,
+      result,
+      date: new Date().toISOString(),
+    };
 
-  localStorage.setItem(
-    "lankacalc-history",
-    JSON.stringify([item, ...existing].slice(0, 30))
-  );
+    localStorage.setItem(
+      "lankacalc-history",
+      JSON.stringify([item, ...existing].slice(0, 50))
+    );
+  } catch {}
 }
 
 async function shareText(text: string) {
@@ -140,11 +174,9 @@ async function shareText(text: string) {
       });
     } else {
       await navigator.clipboard.writeText(text);
-      alert("Result copied!");
+      window.alert("Result copied to clipboard!");
     }
-  } catch {
-    // cancelled
-  }
+  } catch {}
 }
 
 function Input({
@@ -161,7 +193,6 @@ function Input({
   return (
     <label className="lc-input">
       <span>{label}</span>
-
       <div>
         <input
           inputMode="decimal"
@@ -170,7 +201,6 @@ function Input({
             setValue(e.target.value.replace(/[^\d.-]/g, ""))
           }
         />
-
         {suffix && <small>{suffix}</small>}
       </div>
     </label>
@@ -228,17 +258,15 @@ function Percentage() {
       title="Percentage Calculator"
       description="Calculate a percentage of any amount instantly."
       icon={Percent}
-      disclaimer="Mathematical estimate only."
+      disclaimer="Mathematical calculation only."
     >
       <Input label="Percentage" value={p} setValue={setP} suffix="%" />
-      <Input
-        label="Amount"
-        value={amount}
-        setValue={setAmount}
-        suffix="LKR"
-      />
-
+      <Input label="Amount" value={amount} setValue={setAmount} suffix="LKR" />
       <Result label="Result" value={money(result)} main />
+
+      <div className="lc-formula">
+        {p}% × {money(num(amount))} = {money(result)}
+      </div>
 
       <ShareButton
         name="Percentage calculation"
@@ -255,7 +283,8 @@ function Discount() {
   const [price, setPrice] = useState("10000");
   const [discount, setDiscount] = useState("10");
 
-  const saved = (num(price) * num(discount)) / 100;
+  const validDiscount = Math.min(100, Math.max(0, num(discount)));
+  const saved = (num(price) * validDiscount) / 100;
   const final = Math.max(0, num(price) - saved);
 
   return (
@@ -263,21 +292,10 @@ function Discount() {
       title="Discount Calculator"
       description="Find the final price and how much you save."
       icon={ShoppingBag}
-      disclaimer="Final checkout prices may differ if additional charges apply."
+      disclaimer="Final checkout prices can differ when other charges apply."
     >
-      <Input
-        label="Original price"
-        value={price}
-        setValue={setPrice}
-        suffix="LKR"
-      />
-
-      <Input
-        label="Discount"
-        value={discount}
-        setValue={setDiscount}
-        suffix="%"
-      />
+      <Input label="Original price" value={price} setValue={setPrice} suffix="LKR" />
+      <Input label="Discount" value={discount} setValue={setDiscount} suffix="%" />
 
       <div className="lc-results">
         <Result label="You save" value={money(saved)} />
@@ -287,7 +305,9 @@ function Discount() {
       <ShareButton
         name="Discount calculation"
         result={money(final)}
-        text={`🔥 LankaCalc Result\n\nFinal price: ${money(
+        text={`🔥 LankaCalc Result\n\nOriginal price: ${money(
+          num(price)
+        )}\nDiscount: ${validDiscount}%\nFinal price: ${money(
           final
         )}\nYou save: ${money(saved)}\n\n🇱🇰 LankaCalc`}
       />
@@ -301,32 +321,21 @@ function Fuel() {
   const [price, setPrice] = useState("300");
   const [roundTrip, setRoundTrip] = useState(false);
 
-  const km = num(distance) * (roundTrip ? 2 : 1);
-  const litres = km / Math.max(num(efficiency), 0.01);
-  const cost = litres * num(price);
+  const km = Math.max(0, num(distance)) * (roundTrip ? 2 : 1);
+  const eff = Math.max(0.01, num(efficiency));
+  const litres = km / eff;
+  const cost = litres * Math.max(0, num(price));
 
   return (
     <CalcPage
       title="Fuel Cost Calculator"
       description="Estimate fuel usage and trip cost."
       icon={Fuel}
-      disclaimer="Fuel prices and vehicle efficiency can change."
+      disclaimer="Fuel prices and real-world vehicle efficiency can change."
     >
       <Input label="Distance" value={distance} setValue={setDistance} suffix="km" />
-
-      <Input
-        label="Vehicle efficiency"
-        value={efficiency}
-        setValue={setEfficiency}
-        suffix="km/L"
-      />
-
-      <Input
-        label="Fuel price"
-        value={price}
-        setValue={setPrice}
-        suffix="LKR/L"
-      />
+      <Input label="Vehicle efficiency" value={efficiency} setValue={setEfficiency} suffix="km/L" />
+      <Input label="Fuel price" value={price} setValue={setPrice} suffix="LKR/L" />
 
       <button
         className={`lc-toggle ${roundTrip ? "active" : ""}`}
@@ -357,9 +366,10 @@ function Loan() {
   const [rate, setRate] = useState("12");
   const [years, setYears] = useState("5");
 
-  const principal = num(amount);
-  const months = Math.max(1, num(years) * 12);
-  const monthlyRate = num(rate) / 1200;
+  const principal = Math.max(0, num(amount));
+  const months = Math.max(1, Math.round(num(years) * 12));
+  const annualRate = Math.max(0, num(rate));
+  const monthlyRate = annualRate / 1200;
 
   const payment =
     monthlyRate === 0
@@ -377,34 +387,21 @@ function Loan() {
       title="Loan Calculator"
       description="Estimate monthly repayments and total loan cost."
       icon={PiggyBank}
-      disclaimer="Actual lender repayment may differ because of fees, insurance and lender-specific terms."
+      disclaimer="Actual lender repayment may differ due to fees, insurance and lender-specific terms."
     >
-      <Input
-        label="Loan amount"
-        value={amount}
-        setValue={setAmount}
-        suffix="LKR"
-      />
-
-      <Input
-        label="Annual interest rate"
-        value={rate}
-        setValue={setRate}
-        suffix="%"
-      />
-
-      <Input
-        label="Loan period"
-        value={years}
-        setValue={setYears}
-        suffix="years"
-      />
+      <Input label="Loan amount" value={amount} setValue={setAmount} suffix="LKR" />
+      <Input label="Annual interest rate" value={rate} setValue={setRate} suffix="%" />
+      <Input label="Loan period" value={years} setValue={setYears} suffix="years" />
 
       <Result label="Monthly payment" value={money(payment)} main />
 
       <div className="lc-results">
         <Result label="Total repayment" value={money(total)} />
         <Result label="Total interest" value={money(interest)} />
+      </div>
+
+      <div className="lc-formula">
+        Standard reducing-balance EMI formula.
       </div>
 
       <ShareButton
@@ -426,15 +423,16 @@ function Salary() {
   const [overtime, setOvertime] = useState("5000");
   const [deduction, setDeduction] = useState("0");
 
-  const gross = num(basic) + num(allowance) + num(overtime);
-  const takeHome = Math.max(0, gross - num(deduction));
+  const gross = Math.max(0, num(basic)) + Math.max(0, num(allowance)) + Math.max(0, num(overtime));
+  const deductions = Math.max(0, num(deduction));
+  const takeHome = Math.max(0, gross - deductions);
 
   return (
     <CalcPage
       title="Salary Calculator"
-      description="Estimate your gross salary and take-home pay."
+      description="Estimate gross salary and take-home pay."
       icon={Wallet}
-      disclaimer="Tax, EPF, ETF and other official deduction rules may change. Verify current rates."
+      disclaimer="Deduction and tax assumptions can change. Verify current official rates."
     >
       <Input label="Basic salary" value={basic} setValue={setBasic} suffix="LKR" />
       <Input label="Allowances" value={allowance} setValue={setAllowance} suffix="LKR" />
@@ -443,8 +441,13 @@ function Salary() {
 
       <div className="lc-results">
         <Result label="Gross salary" value={money(gross)} />
-        <Result label="Deductions" value={money(num(deduction))} />
-        <Result label="Take-home" value={money(takeHome)} main />
+        <Result label="Deductions" value={money(deductions)} />
+        <Result label="Estimated take-home" value={money(takeHome)} main />
+      </div>
+
+      <div className="lc-assumption">
+        <b>Rates used</b>
+        <span>No automatic EPF/ETF/tax rate is assumed in V1.</span>
       </div>
 
       <ShareButton
@@ -453,7 +456,7 @@ function Salary() {
         text={`🔥 LankaCalc Salary Result\n\nGross: ${money(
           gross
         )}\nDeductions: ${money(
-          num(deduction)
+          deductions
         )}\nEstimated take-home: ${money(takeHome)}\n\n🇱🇰 LankaCalc`}
       />
     </CalcPage>
@@ -466,15 +469,18 @@ function Profit() {
   const [quantity, setQuantity] = useState("100");
   const [expenses, setExpenses] = useState("0");
 
-  const revenue = num(selling) * num(quantity);
-  const totalCost = num(cost) * num(quantity) + num(expenses);
+  const revenue = Math.max(0, num(selling)) * Math.max(0, num(quantity));
+  const productCost = Math.max(0, num(cost)) * Math.max(0, num(quantity));
+  const otherExpenses = Math.max(0, num(expenses));
+  const totalCost = productCost + otherExpenses;
   const profit = revenue - totalCost;
   const margin = revenue ? (profit / revenue) * 100 : 0;
+  const markup = productCost ? (profit / productCost) * 100 : 0;
 
   return (
     <CalcPage
       title="Business Profit Calculator"
-      description="Calculate revenue, costs, profit and margin."
+      description="Calculate revenue, costs, profit, margin and markup."
       icon={DollarSign}
       disclaimer="Use actual accounting costs for important business decisions."
     >
@@ -486,8 +492,9 @@ function Profit() {
       <div className="lc-results">
         <Result label="Revenue" value={money(revenue)} />
         <Result label="Total cost" value={money(totalCost)} />
-        <Result label="Profit" value={money(profit)} main />
-        <Result label="Margin" value={`${margin.toFixed(2)}%`} />
+        <Result label="Net profit" value={money(profit)} main />
+        <Result label="Profit margin" value={`${margin.toFixed(2)}%`} />
+        <Result label="Markup" value={`${markup.toFixed(2)}%`} />
       </div>
 
       <ShareButton
@@ -495,11 +502,236 @@ function Profit() {
         result={money(profit)}
         text={`🔥 LankaCalc Profit Result\n\nRevenue: ${money(
           revenue
-        )}\nCost: ${money(
-          totalCost
-        )}\nProfit: ${money(
+        )}\nCost: ${money(totalCost)}\nProfit: ${money(
           profit
         )}\nMargin: ${margin.toFixed(2)}%\n\n🇱🇰 LankaCalc`}
+      />
+    </CalcPage>
+  );
+}
+
+function Electricity() {
+  const [watts, setWatts] = useState("100");
+  const [quantity, setQuantity] = useState("2");
+  const [hours, setHours] = useState("8");
+  const [days, setDays] = useState("30");
+  const [rate, setRate] = useState("50");
+
+  const kwh =
+    (Math.max(0, num(watts)) *
+      Math.max(0, num(quantity)) *
+      Math.max(0, num(hours)) *
+      Math.max(0, num(days))) /
+    1000;
+
+  const cost = kwh * Math.max(0, num(rate));
+
+  return (
+    <CalcPage
+      title="Electricity Estimator"
+      description="Estimate monthly appliance electricity usage."
+      icon={Zap}
+      disclaimer="This is an estimate. Actual electricity bills depend on the applicable tariff structure and billing rules."
+    >
+      <Input label="Appliance wattage" value={watts} setValue={setWatts} suffix="W" />
+      <Input label="Quantity" value={quantity} setValue={setQuantity} />
+      <Input label="Hours per day" value={hours} setValue={setHours} suffix="hours" />
+      <Input label="Days per month" value={days} setValue={setDays} suffix="days" />
+      <Input label="Estimated rate" value={rate} setValue={setRate} suffix="LKR/kWh" />
+
+      <div className="lc-results">
+        <Result label="Estimated usage" value={`${kwh.toFixed(2)} kWh`} />
+        <Result label="Estimated monthly cost" value={money(cost)} main />
+      </div>
+
+      <div className="lc-assumption">
+        <b>Tariff assumption</b>
+        <span>Simple configurable rate used for estimation: Rs. {rate}/kWh.</span>
+      </div>
+
+      <ShareButton
+        name="Electricity estimate"
+        result={money(cost)}
+        text={`🔥 LankaCalc Electricity Estimate\n\nUsage: ${kwh.toFixed(
+          2
+        )} kWh\nEstimated cost: ${money(cost)}\n\n🇱🇰 LankaCalc`}
+      />
+    </CalcPage>
+  );
+}
+
+function Currency() {
+  const [amount, setAmount] = useState("100");
+  const [from, setFrom] = useState("USD");
+  const [to, setTo] = useState("LKR");
+
+  const rates: Record<string, number> = {
+    LKR: 1,
+    USD: 300,
+    EUR: 350,
+    GBP: 405,
+    AUD: 195,
+    CAD: 220,
+    JPY: 2,
+    INR: 3.6,
+    AED: 82,
+    SAR: 80,
+    SGD: 235,
+  };
+
+  const lkr = num(amount) * rates[from];
+  const result = lkr / rates[to];
+
+  return (
+    <CalcPage
+      title="Currency Converter"
+      description="Convert LKR and major currencies using indicative rates."
+      icon={DollarSign}
+      disclaimer="Indicative rates only. Exchange rates change continuously and may differ from bank or exchange-house rates."
+    >
+      <Input label="Amount" value={amount} setValue={setAmount} />
+
+      <label className="lc-input">
+        <span>From</span>
+        <select value={from} onChange={(e) => setFrom(e.target.value)}>
+          {Object.keys(rates).map((c) => (
+            <option key={c}>{c}</option>
+          ))}
+        </select>
+      </label>
+
+      <button
+        className="lc-swap"
+        onClick={() => {
+          setFrom(to);
+          setTo(from);
+        }}
+      >
+        ↕ Swap currencies
+      </button>
+
+      <label className="lc-input">
+        <span>To</span>
+        <select value={to} onChange={(e) => setTo(e.target.value)}>
+          {Object.keys(rates).map((c) => (
+            <option key={c}>{c}</option>
+          ))}
+        </select>
+      </label>
+
+      <Result label="Converted amount" value={`${result.toFixed(2)} ${to}`} main />
+
+      <div className="lc-rate">
+        Indicative rate: 1 {from} ≈ {(rates[from] / rates[to]).toFixed(4)} {to}
+      </div>
+
+      <ShareButton
+        name="Currency conversion"
+        result={`${result.toFixed(2)} ${to}`}
+        text={`🔥 LankaCalc Currency Result\n\n${amount} ${from} ≈ ${result.toFixed(
+          2
+        )} ${to}\n\nIndicative rate\n🇱🇰 LankaCalc`}
+      />
+    </CalcPage>
+  );
+}
+
+function Unit() {
+  const [value, setValue] = useState("10");
+  const [from, setFrom] = useState("km");
+  const [to, setTo] = useState("m");
+
+  const factors: Record<string, number> = {
+    km: 1000,
+    m: 1,
+    cm: 0.01,
+    mm: 0.001,
+    miles: 1609.344,
+    ft: 0.3048,
+    inches: 0.0254,
+    kg: 1,
+    g: 0.001,
+    lb: 0.45359237,
+    oz: 0.0283495,
+  };
+
+  const result =
+    factors[from] && factors[to]
+      ? (num(value) * factors[from]) / factors[to]
+      : 0;
+
+  return (
+    <CalcPage
+      title="Unit Converter"
+      description="Convert common length and weight units instantly."
+      icon={Calculator}
+      disclaimer="Conversion uses standard mathematical conversion factors."
+    >
+      <Input label="Value" value={value} setValue={setValue} />
+
+      <label className="lc-input">
+        <span>From</span>
+        <select value={from} onChange={(e) => setFrom(e.target.value)}>
+          {Object.keys(factors).map((u) => (
+            <option key={u}>{u}</option>
+          ))}
+        </select>
+      </label>
+
+      <label className="lc-input">
+        <span>To</span>
+        <select value={to} onChange={(e) => setTo(e.target.value)}>
+          {Object.keys(factors).map((u) => (
+            <option key={u}>{u}</option>
+          ))}
+        </select>
+      </label>
+
+      <Result label="Converted value" value={`${result.toFixed(4)} ${to}`} main />
+    </CalcPage>
+  );
+}
+
+function Vehicle() {
+  const [price, setPrice] = useState("5000000");
+  const [shipping, setShipping] = useState("500000");
+  const [insurance, setInsurance] = useState("100000");
+  const [taxRate, setTaxRate] = useState("100");
+  const [other, setOther] = useState("100000");
+
+  const purchase = Math.max(0, num(price));
+  const base = purchase + Math.max(0, num(shipping)) + Math.max(0, num(insurance));
+  const tax = base * Math.max(0, num(taxRate)) / 100;
+  const total = base + tax + Math.max(0, num(other));
+
+  return (
+    <CalcPage
+      title="Vehicle Import Estimator"
+      description="Estimate an imported vehicle's landed cost."
+      icon={Car}
+      disclaimer="ESTIMATE ONLY. Import duties, taxes, levies, exchange rates and applicable charges can change. This is not an official government calculation."
+    >
+      <div className="lc-estimate-badge">ESTIMATE ONLY</div>
+
+      <Input label="Vehicle purchase price" value={price} setValue={setPrice} suffix="LKR" />
+      <Input label="Shipping cost" value={shipping} setValue={setShipping} suffix="LKR" />
+      <Input label="Insurance" value={insurance} setValue={setInsurance} suffix="LKR" />
+      <Input label="Estimated tax / duty rate" value={taxRate} setValue={setTaxRate} suffix="%" />
+      <Input label="Other charges" value={other} setValue={setOther} suffix="LKR" />
+
+      <div className="lc-results">
+        <Result label="Vehicle + shipping + insurance" value={money(base)} />
+        <Result label="Estimated taxes / duties" value={money(tax)} />
+        <Result label="Other charges" value={money(num(other))} />
+        <Result label="Estimated landed cost" value={money(total)} main />
+      </div>
+
+      <ShareButton
+        name="Vehicle import estimate"
+        result={money(total)}
+        text={`🔥 LankaCalc Vehicle Import Estimate\n\nEstimated landed cost: ${money(
+          total
+        )}\n\nESTIMATE ONLY 🇱🇰`}
       />
     </CalcPage>
   );
@@ -521,10 +753,7 @@ function CalcPage({
   return (
     <main className="lc-page">
       <div className="lc-page-inner">
-        <button
-          className="lc-back"
-          onClick={() => (location.hash = "")}
-        >
+        <button className="lc-back" onClick={() => (location.hash = "")}>
           <ArrowLeft size={16} />
           Calculators
         </button>
@@ -547,14 +776,13 @@ function CalcPage({
           <details className="lc-how">
             <summary>How this calculation works</summary>
             <p>
-              Enter your values and LankaCalc performs the calculation
-              instantly in your browser. No database is required.
+              LankaCalc processes your inputs in your browser and displays
+              the result instantly. Basic calculations do not require a
+              database.
             </p>
           </details>
 
-          <div className="lc-disclaimer">
-            ⚠️ {disclaimer}
-          </div>
+          <div className="lc-disclaimer">⚠️ {disclaimer}</div>
         </section>
 
         <div className="lc-ad">
@@ -575,9 +803,11 @@ function Home({
   const [search, setSearch] = useState("");
 
   const results = useMemo(() => {
-    if (!search.trim()) return CALCULATORS;
+    const q = search.trim().toLowerCase();
 
-    const q = search.toLowerCase();
+    if (!q) {
+      return CALCULATORS.filter((c) => c.popular);
+    }
 
     return CALCULATORS.filter((c) =>
       `${c.name} ${c.description} ${c.category}`
@@ -590,24 +820,21 @@ function Home({
     <main>
       <section className="lc-hero">
         <div className="lc-hero-inner">
-          <div className="lc-badge">
-            🇱🇰 Made for Sri Lanka
-          </div>
+          <div className="lc-badge">🇱🇰 Made for Sri Lanka</div>
 
           <h1>
-            Calculate smarter.
+            Sri Lanka's
             <br />
-            <span>Live better.</span>
+            <span>Smart Calculator Hub.</span>
           </h1>
 
           <p>
-            Simple calculators for money, work, vehicles,
-            business and everyday life.
+            Calculate loans, salaries, fuel costs, profits,
+            discounts and more — instantly.
           </p>
 
           <div className="lc-search">
             <Search size={20} />
-
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -705,6 +932,23 @@ function Home({
         </div>
       </section>
 
+      <section className="lc-trust">
+        <div>
+          <b>Fast & private</b>
+          <span>Your calculations happen locally in your browser.</span>
+        </div>
+
+        <div>
+          <b>Made for Sri Lanka</b>
+          <span>LKR-first tools for everyday decisions.</span>
+        </div>
+
+        <div>
+          <b>Transparent</b>
+          <span>Assumptions and estimates are clearly labelled.</span>
+        </div>
+      </section>
+
       <div className="lc-ad">
         <span>ADVERTISEMENT</span>
       </div>
@@ -777,11 +1021,13 @@ function HistoryPage() {
   const [items, setItems] = useState<any[]>([]);
 
   useEffect(() => {
-    setItems(
-      JSON.parse(
-        localStorage.getItem("lankacalc-history") || "[]"
-      )
-    );
+    try {
+      setItems(
+        JSON.parse(localStorage.getItem("lankacalc-history") || "[]")
+      );
+    } catch {
+      setItems([]);
+    }
   }, []);
 
   function clear() {
@@ -809,7 +1055,7 @@ function HistoryPage() {
           <div className="lc-empty">
             <History size={30} />
             <h3>No calculations yet</h3>
-            <p>Your shared calculations will appear here.</p>
+            <p>Use Share Result on a calculator to save a result here.</p>
           </div>
         ) : (
           <div className="lc-history">
@@ -879,7 +1125,6 @@ function SettingsPage({
               <b>Currency</b>
               <small>Default currency for LankaCalc.</small>
             </div>
-
             <strong>LKR / Rs.</strong>
           </div>
 
@@ -888,7 +1133,6 @@ function SettingsPage({
               <b>Country</b>
               <small>Default country.</small>
             </div>
-
             <strong>🇱🇰 Sri Lanka</strong>
           </div>
 
@@ -897,8 +1141,15 @@ function SettingsPage({
               <b>Privacy</b>
               <small>Your calculations are processed locally.</small>
             </div>
-
             <Check size={19} />
+          </div>
+
+          <div className="lc-setting">
+            <div>
+              <b>Premium</b>
+              <small>Future no-ads and advanced features.</small>
+            </div>
+            <span className="lc-coming">Coming later</span>
           </div>
         </section>
       </div>
@@ -912,8 +1163,7 @@ function App() {
   );
 
   const [theme, setTheme] = useState<Theme>(
-    (localStorage.getItem("lankacalc-theme") as Theme) ||
-      "light"
+    (localStorage.getItem("lankacalc-theme") as Theme) || "light"
   );
 
   useEffect(() => {
@@ -943,43 +1193,68 @@ function App() {
 
   let content: React.ReactNode;
 
-  if (page === "home") {
-    content = (
-      <Home
-        openCalc={openCalc}
-        setPage={navigate}
-      />
-    );
-  } else if (page === "calculators") {
-    content = <Calculators openCalc={openCalc} />;
-  } else if (page === "history") {
-    content = <HistoryPage />;
-  } else if (page === "settings") {
-    content = (
-      <SettingsPage
-        theme={theme}
-        setTheme={setTheme}
-      />
-    );
-  } else if (page === "percentage") {
-    content = <Percentage />;
-  } else if (page === "discount") {
-    content = <Discount />;
-  } else if (page === "fuel") {
-    content = <Fuel />;
-  } else if (page === "loan") {
-    content = <Loan />;
-  } else if (page === "salary") {
-    content = <Salary />;
-  } else if (page === "profit") {
-    content = <Profit />;
-  } else {
-    content = (
-      <Home
-        openCalc={openCalc}
-        setPage={navigate}
-      />
-    );
+  switch (page) {
+    case "calculators":
+      content = <Calculators openCalc={openCalc} />;
+      break;
+
+    case "history":
+      content = <HistoryPage />;
+      break;
+
+    case "settings":
+      content = (
+        <SettingsPage theme={theme} setTheme={setTheme} />
+      );
+      break;
+
+    case "percentage":
+      content = <Percentage />;
+      break;
+
+    case "discount":
+      content = <Discount />;
+      break;
+
+    case "fuel":
+      content = <Fuel />;
+      break;
+
+    case "loan":
+      content = <Loan />;
+      break;
+
+    case "salary":
+      content = <Salary />;
+      break;
+
+    case "profit":
+      content = <Profit />;
+      break;
+
+    case "electricity":
+      content = <Electricity />;
+      break;
+
+    case "currency":
+      content = <Currency />;
+      break;
+
+    case "unit":
+      content = <Unit />;
+      break;
+
+    case "vehicle":
+      content = <Vehicle />;
+      break;
+
+    default:
+      content = (
+        <Home
+          openCalc={openCalc}
+          setPage={navigate}
+        />
+      );
   }
 
   return (
@@ -1004,9 +1279,7 @@ function App() {
             Home
           </button>
 
-          <button
-            onClick={() => navigate("calculators")}
-          >
+          <button onClick={() => navigate("calculators")}>
             Calculators
           </button>
 
@@ -1053,14 +1326,12 @@ function App() {
           className={page === "home" ? "active" : ""}
           onClick={() => navigate("home")}
         >
-          <Home size={18} />
+          <HomeIcon size={18} />
           Home
         </button>
 
         <button
-          className={
-            page === "calculators" ? "active" : ""
-          }
+          className={page === "calculators" ? "active" : ""}
           onClick={() => navigate("calculators")}
         >
           <Calculator size={18} />
